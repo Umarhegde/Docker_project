@@ -1,10 +1,13 @@
 pipeline {
     agent any
+    environment {
+        MYSQL_CREDENTIALS = credentials('my-sql-creds') // Replace with your credential ID
+    }
 
    stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/kpagariya/docker-projects.git'
+                git branch: 'master', url: 'https://github.com/Umarhegde/Docker_project.git'
             }
         }
 
@@ -22,7 +25,7 @@ pipeline {
                     sh '''
                     docker run -d --network todo-app-network --network-alias mysql \
                     -v todo-mysql-data:/var/lib/mysql \
-                    -e MYSQL_ROOT_PASSWORD=secret \
+                    -e MYSQL_ROOT_PASSWORD=${MYSQL_CREDENTIALS_PSW} \
                     -e MYSQL_DATABASE=todos \
                     mysql:9.0
                     '''
@@ -35,12 +38,12 @@ pipeline {
                 script {
                     dir('todo-app') {
                         sh '''
-                        
+                       
                         docker build -t todo-app:latest .
-                        docker run -p 8091:3000 --network todo-app-network \
+                        docker run -d --name todo-app -p 8091:3000 --network todo-app-network \
                         -e MYSQL_HOST=mysql \
-                        -e MYSQL_USER=root \
-                        -e MYSQL_PASSWORD=secret \
+                        -e MYSQL_USER=${MYSQL_CREDENTIALS_USR} \
+                        -e MYSQL_PASSWORD=${MYSQL_CREDENTIALS_PSW}\
                         -e MYSQL_DB=todos \
                         todo-app:latest sh -c "yarn install && yarn run dev"
                         '''
@@ -48,13 +51,28 @@ pipeline {
                 }
             }
         }
+        stage('Check App Status') {
+            steps {
+                script {
+                    def appStatus = sh(script: 'docker inspect -f {{.State.Running}} todo-app', returnStdout: true).trim()
+                    if (appStatus != 'true') {
+                        error 'Application failed to start'
+                    }
+                }
+            }
+        }
+
     }
 
     post {
         always {
             script {
+                sh 'docker stop todo-app || true'
+                sh 'docker rm todo-app || true'
                 sh 'docker network rm todo-app-network || true'
             }
         }
     }
 }
+
+
