@@ -16,6 +16,7 @@ pipeline {
         stage('Build') {
             steps {
                 script {
+                    dir('homework-node-app'){
                     sh '''
                     #!/bin/bash
                     echo "Building Docker image..."
@@ -24,6 +25,7 @@ pipeline {
                 }
             }
         }
+	}
         stage('Test') {
             steps {
                 script {
