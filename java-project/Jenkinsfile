@@ -18,7 +18,6 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh '''
-                    cd java-project
                     docker build -t my-app:${BUILD_ID} .
                 '''
             }
