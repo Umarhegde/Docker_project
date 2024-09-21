@@ -4,6 +4,7 @@
     <groupId>com.example</groupId>
     <artifactId>JavaProject</artifactId>
     <version>1.0</version>
+
     <dependencies>
         <dependency>
             <groupId>com.sparkjava</groupId>
@@ -11,8 +12,10 @@
             <version>2.9.3</version>
         </dependency>
     </dependencies>
+
     <build>
         <plugins>
+            <!-- Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -22,14 +25,23 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
+            <!-- JAR Plugin with Main-Class -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>3.2.0</version>
                 <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>com.example.App</mainClass> <!-- Set Main-Class here -->
+                        </manifest>
+                    </archive>
                     <finalName>java-project</finalName>
                 </configuration>
             </plugin>
+
+            <!-- Assembly Plugin for Fat JAR -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -40,9 +52,9 @@
                             <mainClass>com.example.App</mainClass>
                         </manifest>
                     </archive>
-                    <descriptors>
-                        <descriptor>src/assembly/custom.xml</descriptor>
-                    </descriptors>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef> <!-- Creates fat JAR -->
+                    </descriptorRefs>
                 </configuration>
                 <executions>
                     <execution>
