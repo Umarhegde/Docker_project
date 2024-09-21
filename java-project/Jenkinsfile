@@ -11,12 +11,16 @@ pipeline {
                sh '''
                     cd java-project
                     mvn clean install
+                    ls -l target
                     '''
             }
         }
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-app:${BUILD_ID} .'
+                sh '''
+                    cd java-project
+                    docker build -t my-app:${BUILD_ID} .
+                '''
             }
         }
         stage('Run Docker Container') {
