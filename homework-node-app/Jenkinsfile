@@ -1,0 +1,85 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('checkout') {
+            steps {
+                script {
+                    sh '''
+                    #!/bin/bash
+                    echo "Checkout the app.."
+                    
+                    '''
+                }
+            }
+        }
+        stage('Build') {
+            steps {
+                script {
+                    dir('homework-node-app'){
+                    sh '''
+                    #!/bin/bash
+                    echo "Building Docker image..."
+                    docker build -t node-app .
+                    '''
+                }
+            }
+        }
+	}
+        stage('Test') {
+            steps {
+                script {
+                    sh '''
+                    #!/bin/bash
+                    echo "Running tests..."
+                    docker run --rm node-app npm test
+                    '''
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    sh '''
+                    #!/bin/bash
+                    echo "Deploying Docker container..."
+                    docker run -d -p 3000:3000 --name node-app node-app
+                    '''
+                }
+            }
+        }
+    }
+}
+
+
+or
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    docker.build('node-app')
+                }
+            }
+        }
+        stage('Test') {
+            steps {
+                script {
+                    docker.image('node-app').inside {
+                        sh 'npm test'
+                    }
+                }
+            }
+        }
+        stage('Deploy') {
+            steps {
+                script {
+                    docker.image('node-app').run('-p 3000:3000')
+                }
+            }
+        }
+    }
+}
