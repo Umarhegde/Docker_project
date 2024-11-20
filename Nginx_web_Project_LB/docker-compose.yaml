@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  node1:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    environment:
+      - APP_NAME=Node1
+    ports:
+      - "3001:3000"  # Exposing port 3001 externally to map to container's 3000
+    networks:
+      - app-network
+
+  node2:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    environment:
+      - APP_NAME=Node2
+    ports:
+      - "3002:3000"  # Exposing port 3002 externally to map to container's 3000
+    networks:
+      - app-network
+
+  node3:
+    build:
+      context: .
+      dockerfile: Dockerfile.node
+    environment:
+      - APP_NAME=Node3
+    ports:
+      - "3003:3000"  # Exposing port 3003 externally to map to container's 3000
+    networks:
+      - app-network
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    ports:
+      - "80:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
